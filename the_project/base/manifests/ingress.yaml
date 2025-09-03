@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: project
+  name: the-project-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: the-project-fe-svc
+            port:
+              number: 1234
+      - path: /todos
+        pathType: Prefix
+        backend:
+          service:
+            name: the-project-be-svc
+            port:
+              number: 1235
+
+# We can see that the Ingress is listening on port 80. As we already opened the port there we can access the application on http://localhost:8081

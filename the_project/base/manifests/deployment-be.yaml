@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment  # Note
+metadata:
+  namespace: project
+  name: the-project-be-dep  # Note
+spec:
+  replicas: 1  # Note
+  selector:
+    matchLabels:
+      app: the-project-be
+  template:
+    metadata:
+      labels:
+        app: the-project-be
+    spec:
+      containers:  # Note
+      - name: the-project-be-container
+        image: usb9/the-project-be-app:4.6.0
+        imagePullPolicy: Always
+        readinessProbe:
+          initialDelaySeconds: 10 # Initial delay until the readiness is tested
+          periodSeconds: 5 # How often to test
+          httpGet:
+            path: /healthz
+            port: 8001
+        livenessProbe:
+          initialDelaySeconds: 20 # Initial delay until the liveness is tested
+          periodSeconds: 5 # How often to test
+          httpGet:
+              path: /healthz
+              port: 8001
+        env:
+        - name: PORT
+          # value: "8001"
+          valueFrom:
+            configMapKeyRef:
+              name: the-project-be-configmap
+              key: PORT
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: pg-secrets
+              key: POSTGRES_DB2
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: pg-secrets
+              key: POSTGRES_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pg-secrets
+              key: POSTGRES_PASSWORD
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: the-project-be-configmap
+              key: POSTGRES_HOST
+        - name: NATS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: the-project-be-configmap
+              key: NATS_URL
+
+# kubectl apply -f manifests/deployment.yaml  # (The fact that you can apply manifest from the internet just like that will come in handy)
+  # kubectl delete -f manifests/deployment.yaml

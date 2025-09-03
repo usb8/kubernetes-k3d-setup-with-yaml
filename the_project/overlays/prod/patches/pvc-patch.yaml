@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: the-project-pvc
+spec:
+  storageClassName: prod-the-project-pv
+  # ...rest of the spec remains unchanged...

@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: project-stage1
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/usb8/kubernetes-k3d
+    path: ./the_project/overlays/staging/
+    targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+# cd the_project/overlays/staging/
+# kubectl apply -n argocd -f application.yaml

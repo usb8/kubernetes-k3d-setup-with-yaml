@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: project
+  name: todo-cronjob
+spec:
+  # schedule: "* * * * *"  # Run every minute for testing
+  schedule: "0 * * * *"   # Run every hour at minute 0
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: todo-cronjob-container
+            image: alpine:latest
+            imagePullPolicy: Always
+            command: ["/bin/sh","-c"]
+            args:
+            - |
+              apk update && apk add -q curl
+
+              echo "Fetching random Wikipedia article..."
+              WIKI_URL=$(curl -s -o /dev/null -w "%{redirect_url}" https://en.wikipedia.org/wiki/Special:Random) || {
+                echo "❌ Failed to fetch random Wikipedia article"
+                exit 1
+              }
+              echo "Fetched article: $WIKI_URL"
+
+              TODO="Read $WIKI_URL"
+
+              echo "Creating todo: $TODO"
+              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://the-project-be-svc:1235/todos \
+                -H "Content-Type: application/json" \
+                -d "{\"name\": \"$TODO\"}")
+
+              if [ "$RESPONSE" -eq 200 ] || [ "$RESPONSE" -eq 201 ]; then
+                echo "✅ Successfully posted todo"
+              else
+                echo "❌ Failed to post todo, HTTP status: $RESPONSE"
+              fi
+          restartPolicy: OnFailure
+      backoffLimit: 3
+
+# kubectl get cronjobs -n project
+  # kubectl describe cronjob todo-cronjob -n project
+  # kubectl get jobs -n project
+    # kubectl get pods -l job-name=todo-cronjob-29274161 -n project
+      # kubectl logs todo-cronjob-29274161-n24qm -n project

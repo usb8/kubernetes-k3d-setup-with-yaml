@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: the-project-be-configmap
+data:
+  NATS_URL: "nats://staging-nats-svc:4222"
+  POSTGRES_HOST: staging-pg-svc.staging.svc.cluster.local

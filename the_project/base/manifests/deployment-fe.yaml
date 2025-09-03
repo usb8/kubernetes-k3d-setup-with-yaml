@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment  # Note
+metadata:
+  namespace: project
+  name: the-project-fe-dep  # Note
+spec:
+  replicas: 1  # Note
+  selector:
+    matchLabels:
+      app: the-project-fe
+  template:
+    metadata:
+      labels:
+        app: the-project-fe
+    spec:
+      volumes: # Define volume
+        - name: the-project-pv
+          persistentVolumeClaim:
+            claimName: the-project-pvc
+      containers:  # Note
+        - name: the-project-fe-container
+          image: usb9/the-project-fe-app:4.5
+          imagePullPolicy: Always
+          volumeMounts: # Mount volume
+          - name: the-project-pv
+            mountPath: /cache-images
+          env:
+            - name: PORT
+              # value: "8000"
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-fe-configmap
+                  key: PORT
+            - name: TODO_BACKEND_URL
+              # value: "http://the-project-be-svc:1235"  # NOTE: calling POST api does not worked, NEED to update post method in html file - FE app
+              # value: "http://localhost:8081"  # Cannot connect to BE service
+              valueFrom:
+                configMapKeyRef:
+                  name: the-project-fe-configmap
+                  key: TODO_BACKEND_URL
+
+# kubectl apply -f manifests/deployment.yaml  # (The fact that you can apply manifest from the internet just like that will come in handy)
+  # kubectl delete -f manifests/deployment.yaml

@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- manifests/once/ns.yaml
+- manifests/broadcaster.yaml
+- manifests/configmap.yaml
+- manifests/deployment-be.yaml
+- manifests/deployment-fe.yaml
+- manifests/ingress.yaml
+- manifests/nats.yaml
+- manifests/postgres.yaml
+- manifests/pv.yaml
+- manifests/pvc.yaml
+- manifests/secrets.yaml
+- manifests/service.yaml
+- manifests/todo-cronjob.yaml
+images:
+- name: usb9/broadcaster-app
+  newName: usb9/broadcaster-app
+  newTag: 1cca74f8fc115df85d21b136727e6a891777664a
+- name: usb9/the-project-be-app
+  newName: usb9/the-project-be-app
+  newTag: 1cca74f8fc115df85d21b136727e6a891777664a
+- name: usb9/the-project-fe-app
+  newName: usb9/the-project-fe-app
+  newTag: 1cca74f8fc115df85d21b136727e6a891777664a

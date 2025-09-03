@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: project
+  name: pg-svc
+  labels:
+    app: pg
+spec:
+  ports:
+  - port: 5432
+    name: pg
+    targetPort: 5432
+  clusterIP: None
+  selector:
+    app: pg
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: project
+  name: pg-stset
+spec:
+  serviceName: pg
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg
+  template:
+    metadata:
+      labels:
+        app: pg
+    spec:
+      containers:
+      - name: pg
+        image: postgres:13.2-alpine  # kubectl delete pvc -l app=pg -n project
+        ports:
+        - name: pg
+          containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: pg-secrets
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: pg-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pg-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: pg2-data
+          mountPath: /var/lib/postgresql/data  # In Postgres conatiner's data directory
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: initdb
+        configMap:
+          name: the-project-be-configmap
+          items:
+          - key: db.sh
+            path: db.sh
+  volumeClaimTemplates:
+  - metadata:
+      name: pg2-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 100Mi
+
+# DELETE ---------
+# kubectl apply -f manifests/postgres.yaml
+  # -> Pod: postgres-0
+    # kubectl delete -f manifests/postgres.yaml
+  # -> PVC: pg2-data-pg-stset-0
+    # kubectl get pvc -n project
+    # kubectl delete pvc pg2-data-pg-stset-0 -n project
+  # -> PV: from StorageClass provision
+    # kubectl get pv -n project
+    # kubectl delete pv <pv-name>
+
+# DEBUG ----------
+# kubectl run -it --rm --restart=Never --image postgres psql-for-debugging sh
+  # kubectl delete pod psql-for-debugging
+
+  # (Press enter if waiting too long)
+  # psql postgres://pg-svc.project.svc.cluster.local
+  # psql postgres://postgres:postgres@pg-svc.project.svc.cluster.local
+    # \l                # list databases
+      # Press q to exit
+    # \c todolist_db    # connect to todolist_db
+      # \dt             # list tables
+        # SELECT * FROM todolist_table;
+    # Ctrl+D            # to exit

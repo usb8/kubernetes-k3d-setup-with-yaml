@@ -1,0 +1,7 @@
+# kind: CronJob
+# metadata:
+#   namespace: project
+#   name: the-project-backup
+# spec:
+#   schedule: "* * * * *"
+#   jobTemplate:

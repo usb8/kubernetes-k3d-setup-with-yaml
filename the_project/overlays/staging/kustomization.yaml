@@ -1,0 +1,53 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Refer to base kustomization
+resources:
+- ./../../base
+
+patches:
+# - path: patches/backup-patch.yaml
+#   target:
+#     kind: CronJob
+#     name: the-project-backup
+- path: patches/broadcaster-patch.yaml
+  target:
+    kind: Deployment
+    name: broadcaster-dep
+- path: patches/configmap-fe-patch.yaml
+  target:
+    kind: ConfigMap
+    name: the-project-fe-configmap
+- path: patches/configmap-be-patch.yaml
+  target:
+    kind: ConfigMap
+    name: the-project-be-configmap
+- path: patches/postgres-patch.yaml
+  target:
+    kind: StatefulSet
+    name: pg-stset
+- path: patches/pv-patch.yaml
+  target:
+    kind: PersistentVolume
+    name: the-project-pv
+- path: patches/pvc-patch.yaml
+  target:
+    kind: PersistentVolumeClaim
+    name: the-project-pvc
+
+# # It will automatically add prefix to the name (metadata.name) of all resources built from kustomization -> claimName of others will be updated too
+namePrefix: staging-
+
+# Similar to namePrefix, you can set a namespace for all resources
+namespace: staging
+
+images:
+- name: usb9/broadcaster-app
+  newName: usb9/broadcaster-app
+  newTag: bd45109b2b890458257fabfdaf4c55c17d44c59c
+- name: usb9/the-project-be-app
+  newName: usb9/the-project-be-app
+  newTag: bd45109b2b890458257fabfdaf4c55c17d44c59c
+- name: usb9/the-project-fe-app
+  newName: usb9/the-project-fe-app
+  newTag: bd45109b2b890458257fabfdaf4c55c17d44c59c

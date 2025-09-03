@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: project
+  name: pg-stset
+spec:
+  template:
+    spec:
+      containers:
+      - name: pg
+        image: postgres:13.2-alpine  # kubectl delete pvc -l app=pg -n project
+        volumeMounts:
+        - name: prod-pg-data
+          mountPath: /var/lib/postgresql/data  # In Postgres conatiner's data directory
+        - name: initdb
+          mountPath: /docker-entrypoint-initdb.d
+  volumeClaimTemplates:
+  - metadata:
+      name: prod-pg-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 100Mi
+
+# DELETE ---------
+# kubectl apply -f manifests/postgres.yaml
+  # -> Pod: postgres-0
+    # kubectl delete -f manifests/postgres.yaml
+  # -> PVC: pg2-data-pg-stset-0
+    # kubectl get pvc -n project
+    # kubectl delete pvc pg2-data-pg-stset-0 -n project
+  # -> PV: from StorageClass provision
+    # kubectl get pv -n project
+    # kubectl delete pv <pv-name>
+
+# DEBUG ----------
+# kubectl run -it --rm --restart=Never --image postgres psql-for-debugging sh
+  # kubectl delete pod psql-for-debugging
+
+  # (Press enter if waiting too long)
+  # psql postgres://pg-svc.project.svc.cluster.local
+  # psql postgres://postgres:postgres@pg-svc.project.svc.cluster.local
+    # \l                # list databases
+      # Press q to exit
+    # \c todolist_db    # connect to todolist_db
+      # \dt             # list tables
+        # SELECT * FROM todolist_table;
+    # Ctrl+D            # to exit

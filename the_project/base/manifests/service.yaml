@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: project
+  name: the-project-fe-svc
+spec:
+  # type: NodePort
+  type: ClusterIP
+  selector:
+    app: the-project-fe  # This is the app as declared in the deployment.
+  ports:
+    # - name: http
+    #   nodePort: 30080  # This is the port that is available outside pod, = node. Value for nodePort can be between 30000-32767
+    #   protocol: TCP
+    #   port: 1234  # This is a port that is available to the cluster, in this case it can be ~ anything
+    #   targetPort: 8000  # This is the target port (the port that the container/app listens on)
+
+    - port: 1234
+      protocol: TCP
+      targetPort: 8000
+# kubectl apply -f manifests/service.yaml
+  # kubectl delete -f manifests/service.yaml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: project
+  name: the-project-be-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: the-project-be  # This is the app as declared in the deployment.
+  ports:
+    - port: 1235
+      protocol: TCP
+      targetPort: 8001

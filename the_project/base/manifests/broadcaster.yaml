@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: project
+  name: broadcaster-dep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: broadcaster
+  template:
+    metadata:
+      labels:
+        app: broadcaster
+    spec:
+      containers:
+      - name: broadcaster
+        image: usb9/broadcaster-app:4.6.3
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8002
+        env:
+        - name: PORT
+          value: "8002"
+        - name: NATS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: the-project-be-configmap
+              key: NATS_URL
+        envFrom:
+        - secretRef:
+            name: telegram-credentials
+            # Create Telegram bot:
+              # @BotFather, /newbot, name username -> API token
+                # press to open/start bot
+              # @userinfobot, input any
+            # kubectl create secret generic telegram-credentials --from-literal=TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN --from-literal=TELEGRAM_CHAT_ID=YOUR_CHAT_ID -n project (permanent not like 'export')
+              # kubectl delete secret telegram-credentials -n project
+            # Or kubectl edit deployment <my_deployment> || kubectl get deployment <my_deployment> -o yaml -> rolling update
+            # Remove Telegram bot: @BotFather, /deletebot
+
+# kubectl logs -n project pod/broadcaster-dep-67df8fbdfd-xhn8g
