@@ -5,11 +5,11 @@ kind: Kustomization
 resources:
 - ./../../base
 
-patches:
 # - path: patches/backup-patch.yaml
 #   target:
 #     kind: CronJob
 #     name: the-project-backup
+patches:
 - path: patches/configmap-fe-patch.yaml
   target:
     kind: ConfigMap
@@ -40,10 +40,10 @@ namespace: production
 images:
 - name: usb9/broadcaster-app
   newName: usb9/broadcaster-app
-  newTag: bd45109b2b890458257fabfdaf4c55c17d44c59c
+  newTag: 0384a20b5c9953be2854248b22a454156701eb82
 - name: usb9/the-project-be-app
   newName: usb9/the-project-be-app
-  newTag: bd45109b2b890458257fabfdaf4c55c17d44c59c
+  newTag: 0384a20b5c9953be2854248b22a454156701eb82
 - name: usb9/the-project-fe-app
   newName: usb9/the-project-fe-app
-  newTag: bd45109b2b890458257fabfdaf4c55c17d44c59c
+  newTag: 0384a20b5c9953be2854248b22a454156701eb82
