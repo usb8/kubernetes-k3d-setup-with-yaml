@@ -44,10 +44,10 @@ namespace: staging
 images:
 - name: usb9/broadcaster-app
   newName: usb9/broadcaster-app
-  newTag: 0384a20b5c9953be2854248b22a454156701eb82
+  newTag: 7113f05bfd4185b68eeca6506a2c181738fb5e90
 - name: usb9/the-project-be-app
   newName: usb9/the-project-be-app
-  newTag: 0384a20b5c9953be2854248b22a454156701eb82
+  newTag: 7113f05bfd4185b68eeca6506a2c181738fb5e90
 - name: usb9/the-project-fe-app
   newName: usb9/the-project-fe-app
-  newTag: 0384a20b5c9953be2854248b22a454156701eb82
+  newTag: 7113f05bfd4185b68eeca6506a2c181738fb5e90
